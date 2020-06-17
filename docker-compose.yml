@@ -1,0 +1,25 @@
+version: '2.4'
+
+services:
+  node:
+    build:
+      dockerfile: 5.dockerfile
+      context: .
+      target: dev
+    volumes:
+      - .:/app:delegated
+    ports:
+      - 3000:3000
+
+    #depends on database but waits until it is ready until node
+    #image is started
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgres
+    #defines that check that when passed means the db is up and running
+    healthcheck:
+      test: pg_isready -U postgres -h 127.0.0.1
+      interval: 5s
